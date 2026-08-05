@@ -1,0 +1,24 @@
+{
+  "name": "printcheck",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Is this STL printable? Overhangs, thin walls, bed fit, holes, and orientation advice, all in the browser.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.4",
+    "playwright": "^1.62.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  }
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    />
+    <title>printcheck - is this STL printable?</title>
+    <meta
+      name="description"
+      content="Drag an STL onto the page: overhangs, thin walls, bed fit, holes, and orientation advice, rendered on the model. Everything runs in your browser."
+    />
+  </head>
+  <body>
+    <div id="topbar">
+      <div id="brand">print<span>check</span></div>
+      <label class="control">
+        printer
+        <select id="preset"></select>
+      </label>
+      <label class="control">
+        overhang <span class="value" id="overhang-value">45</span>&deg;
+        <input id="overhang" type="range" min="20" max="80" step="1" value="45" />
+      </label>
+      <label class="control">
+        thin wall <span class="value" id="thin-value">0.8</span> mm
+        <input id="thin" type="range" min="0.2" max="3" step="0.1" value="0.8" />
+      </label>
+      <span class="spacer"></span>
+      <button id="demo-btn" class="ghost">demo model</button>
+      <button id="file-btn">open STL</button>
+      <input id="file-input" type="file" accept=".stl" hidden />
+    </div>
+
+    <div id="stage">
+      <div id="viewport"></div>
+      <aside id="panel">
+        <div id="empty-state">
+          <h1>Is this STL printable?</h1>
+          <p>
+            Drop a <b>.stl</b> anywhere on the page. printcheck flags
+            overhangs, thin walls, holes, and bed fit, and suggests a better
+            orientation, all rendered on the model.
+          </p>
+          <p class="quiet">
+            No upload, no account, no server. The file never leaves this tab.
+          </p>
+        </div>
+        <div id="results" hidden>
+          <section id="verdicts"></section>
+          <section>
+            <h2>orientation</h2>
+            <div id="orientations"></div>
+          </section>
+          <section>
+            <h2>model</h2>
+            <dl id="stats"></dl>
+          </section>
+          <section>
+            <h2>legend</h2>
+            <div class="legend">
+              <span><i class="swatch overhang"></i> overhang</span>
+              <span><i class="swatch thin"></i> thin wall</span>
+              <span><i class="swatch hole"></i> open edge</span>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+
+    <div id="drop-overlay" hidden><div>drop the STL</div></div>
+    <footer>
+      your file never leaves this page, there is no server
+      <span class="dot"></span>
+      <a href="https://github.com/keivanmalhani/printcheck">source</a>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
