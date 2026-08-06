@@ -45,6 +45,8 @@ body {
   font-weight: 700;
   font-size: 17px;
   letter-spacing: 0.3px;
+  /* #brand is the page's h1, so the UA heading margin has to be cleared. */
+  margin: 0;
 }
 
 #brand span {
@@ -126,7 +128,7 @@ input[type="range"] {
   padding: 18px;
 }
 
-#empty-state h1 {
+#empty-state h2 {
   font-size: 21px;
   margin: 6px 0 12px;
   line-height: 1.25;
@@ -146,7 +148,9 @@ input[type="range"] {
   font-size: 12px !important;
 }
 
-#panel h2 {
+/* Scoped to #results so it does not also capture the empty state's h2, which
+   sits under #panel too and carries its own larger styling above. */
+#results h2 {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1.2px;
