@@ -10,7 +10,27 @@ import { renderOrientations, renderStats, renderVerdicts, toast } from "./ui";
 import { Viewer } from "./viewer";
 
 const viewport = document.getElementById("viewport")!;
-const viewer = new Viewer(viewport);
+
+let viewer: Viewer;
+try {
+  viewer = new Viewer(viewport);
+} catch (error) {
+  // WebGL can fail to initialize: old browsers, locked-down corporate
+  // machines, some privacy-hardened configs. Degrade instead of dying,
+  // the numeric verdicts below don't need a GPU.
+  console.error("3D viewer unavailable, falling back to numbers-only mode:", error);
+  toast("3D preview isn't available in this browser. Verdicts and stats below still work.");
+  const notice = document.createElement("p");
+  notice.className = "quiet";
+  notice.textContent =
+    "This browser or device does not support WebGL, so the 3D preview is off. Load an STL to still see the numeric verdicts.";
+  document.getElementById("empty-state")!.appendChild(notice);
+  viewer = {
+    setPreset: () => {},
+    setMesh: () => {},
+    colorize: () => {},
+  } as unknown as Viewer;
+}
 
 interface State {
   mesh: ParsedMesh | null;
