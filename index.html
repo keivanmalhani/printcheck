@@ -15,7 +15,7 @@
     />
   </head>
   <body>
-    <div id="topbar">
+    <header id="topbar">
       <div id="brand">print<span>check</span></div>
       <label class="control">
         printer
@@ -33,9 +33,9 @@
       <button id="demo-btn" class="ghost">demo model</button>
       <button id="file-btn">open STL</button>
       <input id="file-input" type="file" accept=".stl" hidden />
-    </div>
+    </header>
 
-    <div id="stage">
+    <main id="stage">
       <div id="viewport"></div>
       <aside id="panel">
         <div id="empty-state">
@@ -69,7 +69,7 @@
           </section>
         </div>
       </aside>
-    </div>
+    </main>
 
     <div id="drop-overlay" hidden><div>drop the STL</div></div>
     <footer>
