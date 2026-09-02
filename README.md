@@ -4,8 +4,6 @@
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)
 
-English | [Espanol](README.es.md)
-
 **[Try it live](https://keivanmalhani.github.io/printcheck/)** - drop an STL, get answers.
 
 ![printcheck demo: drop an STL, see overhangs and thin walls on the model, apply a better orientation](docs/demo.gif)
