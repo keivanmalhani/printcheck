@@ -149,3 +149,79 @@ describe("bed fit", () => {
     expect(bedFit(computeBounds(swapped.positions), mini).fits).toBe(true);
   });
 });
+
+// Boundary cases added 2026-09-02 after mutation testing. All 28 tests passed with
+// bedFit's rotation collapsed to `const overflow = straight`, and with overhang's
+// `-nz > sinThreshold` widened to `>=`. Both are behaviours the README advertises.
+describe("bed fit rotation", () => {
+  const mk4 = PRESETS.find((p) => p.id === "prusa-mk4")!;
+
+  it("a 200x240 footprint fits a 250x210 bed only when it is turned", () => {
+    // The existing rotation test uses the 180x180 mini preset, where a square bed
+    // makes both arrangements identical, so it cannot see the rotation at all.
+    // On the MK4S the two arrangements disagree: straight is 30 mm over on depth,
+    // turned is inside the plate. Deleting the swap made this part unprintable and
+    // the whole suite stayed green.
+    const part = soupToMesh(box(0, 0, 25, 200, 240, 50));
+    const report = bedFit(computeBounds(part.positions), mk4);
+    expect(report.fits).toBe(true);
+    expect(report.overflow).toEqual([0, 0, 0]);
+  });
+
+  it("the same footprint straight on would be 30 mm over on depth", () => {
+    // Pins the number the rotation is saving, so the test above cannot pass just
+    // because the bed happens to be big enough.
+    const part = soupToMesh(box(0, 0, 25, 200, 240, 50));
+    const bounds = computeBounds(part.positions);
+    expect(bounds.size[1] - mk4.depth).toBeCloseTo(30);
+  });
+
+  it("a part too big both ways still does not fit", () => {
+    // The negative half: without it, `fits` could be hardcoded true.
+    const part = soupToMesh(box(0, 0, 25, 300, 300, 50));
+    const report = bedFit(computeBounds(part.positions), mk4);
+    expect(report.fits).toBe(false);
+    expect(report.overflow[0]).toBeGreaterThan(0);
+    expect(report.overflow[1]).toBeGreaterThan(0);
+  });
+});
+
+describe("overhang threshold boundary", () => {
+  // A surface sitting exactly ON the threshold must stay clean: the docstring says a
+  // triangle is an overhang when its angle *exceeds* the threshold. Widening
+  // `-nz > sinThreshold` to `>=` left all 28 tests green.
+  //
+  // The comparison can only decide anything when -nz equals sinThreshold to the bit.
+  // Normals are a Float32Array and sinThreshold is a double, so that happens only
+  // where sin(threshold) is exactly representable in float32. Sweeping every integer
+  // degree from 0 to 90, that is true at 0 (sin = 0) and 90 (sin = 1) and nowhere
+  // else - 45 degrees included, where the float32 normal is 0.70710676908493042 and
+  // sin(45 deg) is 0.70710678118654746. So these two are the whole boundary.
+  const cube10 = soupToMesh(box(0, 0, 5, 10, 10, 10));
+  const ceiling = soupToMesh([
+    0, 0, 0, 1, 0, 0, 0, 1, 0, // helper on the plate, so the slab is not bed contact
+    ...box(0, 0, 40, 20, 20, 10),
+  ]);
+
+  it("a vertical wall is not an overhang at threshold 0", () => {
+    // threshold 0 is the strictest setting: anything past vertical is an overhang.
+    // A wall sitting exactly at vertical (nz === 0) is printable and must stay clean.
+    // With `>=` the cube's four sides become 67% overhang.
+    const report = overhangReport(cube10.positions, cube10.normals, cube10.triCount, 0);
+    expect(report.overhangAreaFraction).toBe(0);
+  });
+
+  it("a flat ceiling is not an overhang at threshold 90", () => {
+    // threshold 90 is the loosest setting: nothing can be an overhang. A flat
+    // down-facing ceiling (nz === -1) sits exactly on it. With `>=` it is flagged.
+    const report = overhangReport(ceiling.positions, ceiling.normals, ceiling.triCount, 90);
+    expect(report.overhangAreaFraction).toBe(0);
+  });
+
+  it("that same ceiling is an overhang at the default 45", () => {
+    // The positive control: without it the two tests above are satisfied by a rule
+    // that never flags anything.
+    const report = overhangReport(ceiling.positions, ceiling.normals, ceiling.triCount, 45);
+    expect(report.overhangAreaFraction).toBeGreaterThan(0.2);
+  });
+});
